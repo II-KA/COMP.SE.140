@@ -1,0 +1,46 @@
+version: "3"
+services:
+  service1:
+    build:
+      dockerfile: Dockerfile
+      context: ./service1
+    image: service1_kainu_iida
+    container_name: service1_kainu_iida
+    # Expose a port without publishing it to the host machine
+    # (only accessible to linked services)
+    expose:
+      - ${SERVICE1_PORT}
+    # Use the defined network for communicating between service1 & service2
+    networks:
+      - servicenet
+    # Add environment variables to the container based on the file content
+    env_file:
+      - .env
+    # Bind mount the folder into the container
+    # Source ./logs, target /usr/scr/logs
+    volumes:
+      - ./logs:/usr/src/logs
+  service2:
+    build:
+      dockerfile: Dockerfile
+      context: ./service2
+    image: service2_kainu_iida
+    container_name: service2_kainu_iida
+    # Expose a port without publishing it to the host machine
+    # (only accessible to linked services)
+    expose:
+      - ${SERVICE2_PORT}
+    # Use the defined network for communicating between service1 & service2
+    networks:
+      - servicenet
+    # Add environment variables to the container based on the file content
+    env_file:
+      - .env
+    # Bind mount the folder into the container
+    # Source ./logs, target /usr/scr/logs
+    volumes:
+      - ./logs:/usr/src/logs
+
+# Create a named network, that the services use to communicate through exposed ports
+networks:
+  servicenet:
