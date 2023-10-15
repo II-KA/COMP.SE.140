@@ -1,0 +1,75 @@
+version: "3"
+services:
+  service1:
+    ## The service depends on rabbitmq,
+    ## further status check is done in the service1 dockerfile
+    depends_on:
+      - rabbitmq
+    build:
+      dockerfile: Dockerfile
+      context: ./service1
+    image: service1_kainu_iida
+    container_name: service1_kainu_iida
+    # Expose a port without publishing it to the host machine
+    # (only accessible to linked services)
+    expose:
+      - ${SERVICE1_PORT}
+    # Use the defined network for communicating between services
+    networks:
+      - servicenet
+    # Add environment variables to the container based on the file content
+    env_file:
+      - .env
+  service2:
+    build:
+      dockerfile: Dockerfile
+      context: ./service2
+    image: service2_kainu_iida
+    container_name: service2_kainu_iida
+    # Expose a port without publishing it to the host machine
+    # (only accessible to linked services)
+    expose:
+      - ${SERVICE2_PORT}
+    # Use the defined network for communicating between services
+    networks:
+      - servicenet
+    # Add environment variables to the container based on the file content
+    env_file:
+      - .env
+  monitor:
+    ## The monitor depends on rabbitmq,
+    ## further status check is done in the monitor dockerfile
+    depends_on:
+      - rabbitmq
+    build:
+      dockerfile: Dockerfile
+      context: ./monitor
+    image: monitor_kainu_iida
+    container_name: monitor_kainu_iida
+    # map the visible port to the port on the Docker host
+    ports:
+      - "${MONITOR_VISIBLE_PORT}:${MONITOR_PORT}"
+    # Use the defined network for communicating with rabbitmq
+    networks:
+      - servicenet
+    # Add environment variables to the container based on the file content
+    env_file:
+      - .env
+  rabbitmq:
+    image: rabbitmq:3.10
+    container_name: rabbitmq_kainu_iida
+    # Expose a port without publishing it to the host machine
+    # (only accessible to linked services)
+    expose:
+      - ${RABBITMQ_PORT}
+    # Use the defined network for communicating between services
+    networks:
+      - servicenet
+    # User and password for initializing the service,
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+
+# Create a named network, that the services use to communicate through exposed ports
+networks:
+  servicenet:
