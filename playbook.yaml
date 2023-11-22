@@ -1,0 +1,15 @@
+- name: Ansible exercise
+  hosts: dockercontainers
+  tasks:
+    - name: Ensure git version management system is at the latest version
+      # sudo is needed
+      become: yes
+      ansible.builtin.apt:
+        name: git
+        state: latest
+
+    - name: Query the uptime of target host
+      command: uptime
+      register: out
+    # print the output of the uptime-command
+    - debug: var=out.stdout
