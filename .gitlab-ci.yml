@@ -1,0 +1,30 @@
+image: node:18
+
+workflow:
+  rules:
+    # run pipeline automatically triggered by changes being pushed to project-branch
+    - if: $CI_COMMIT_BRANCH == "project"
+      when: always
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    # lint and build services
+    - cd monitor && npm run lint && npm run build && cd ..
+    - cd service1 && npm run lint && npm run build && cd ..
+
+unit-tests:
+  stage: test
+  script:
+    - npm run test:unit:ci
+
+# deploy application to same machine where the GitLab runner runs
+docker-deploy:
+  stage: deploy
+  script:
+    - docker-compose up
