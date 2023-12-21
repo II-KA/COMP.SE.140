@@ -1,19 +1,19 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
 const REQUIRED_ENV_VARS = [
-  "SERVICE1_PORT",
-  "SERVICE2_PORT",
-  "SERVICE2_NAME",
-  "RABBITMQ_NAME",
-  "RABBITMQ_USER",
-  "RABBITMQ_PASS",
-  "RABBITMQ_TOPIC_MESSAGE",
-  "RABBITMQ_TOPIC_LOG",
+  'SERVICE1_PORT',
+  'SERVICE2_PORT',
+  'SERVICE2_NAME',
+  'RABBITMQ_NAME',
+  'RABBITMQ_USER',
+  'RABBITMQ_PASS',
+  'RABBITMQ_TOPIC_MESSAGE',
+  'RABBITMQ_TOPIC_LOG'
 ] as const;
 
 export const configureEnvVariables = () => {
   dotenv.config();
-  REQUIRED_ENV_VARS.forEach((envVar) => {
+  REQUIRED_ENV_VARS.forEach(envVar => {
     if (!process.env[envVar]) {
       throw new Error(`Required environment variable missing: ${envVar}`);
     }
@@ -32,4 +32,4 @@ export const RABBITMQ_PASS = envVariables.RABBITMQ_PASS;
 export const RABBITMQ_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBITMQ_NAME}`;
 export const RABBITMQ_TOPIC_MESSAGE = envVariables.RABBITMQ_TOPIC_MESSAGE;
 export const RABBITMQ_TOPIC_LOG = envVariables.RABBITMQ_TOPIC_LOG;
-export const RABBITMQ_EXCHANGE = "topic_messages";
+export const RABBITMQ_EXCHANGE = 'topic_messages';

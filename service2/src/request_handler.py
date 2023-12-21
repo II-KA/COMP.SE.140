@@ -3,7 +3,9 @@ import json
 
 
 class Handler(BaseHTTPRequestHandler):
-    def __init__(self, *args, channel=None, exchange=None, produceQueueName=None, **kwargs):
+    def __init__(
+        self, *args, channel=None, exchange=None, produceQueueName=None, **kwargs
+    ):
         self.channel = channel
         self.exchange = exchange
         self.produceQueueName = produceQueueName
@@ -19,9 +21,9 @@ class Handler(BaseHTTPRequestHandler):
             newLog = f"{log} {address}:{port}\n"
             print(f"HTTP: {newLog}", end="")
             # send the text to message broker topic "log"
-            self.channel.basic_publish(exchange=self.exchange,
-                                       routing_key=self.produceQueueName,
-                                       body=newLog)
+            self.channel.basic_publish(
+                exchange=self.exchange, routing_key=self.produceQueueName, body=newLog
+            )
             self.respond(200, "text/plain", "ok")
 
     def respond(self, status, content_type, content):
@@ -32,7 +34,3 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):
         pass
-
-    def shut_down(self):
-        print("Shutting HTTP server down ✔️")
-        self._server.shutdown()

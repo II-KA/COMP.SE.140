@@ -1,4 +1,5 @@
-image: node:18
+# Use a image with both python & nodejs installed
+image: nikolaik/python-nodejs:latest
 
 workflow:
   rules:
@@ -11,12 +12,24 @@ stages:
   - test
   - deploy
 
-build:
+## Install dependencies
+default:
+  before_script:
+    - cd monitor && npm ci --prefer-offline && cd ..
+    - cd service1 && npm ci --prefer-offline && cd ..
+    # TODO: is installation of python-dotenv & pika required?
+    - pip install --no-cache-dir python-dotenv pika black pylint
+
+lint-and-build:
   stage: build
   script:
-    # lint and build services
+    # format-check, lint, and build (when applicable) services
     - cd monitor && npm run lint && npm run build && cd ..
     - cd service1 && npm run lint && npm run build && cd ..
+    - cd service2
+    - find . -type f -name "*.py" | xargs python3 -m black --check
+    - find . -type f -name "*.py" | xargs python3 -m pylint --errors-only
+    - cd ..
 
 unit-tests:
   stage: test

@@ -1,9 +1,9 @@
-import amqp, { type Channel } from "amqplib";
-import dns from "dns";
-import { RABBITMQ_EXCHANGE, RABBITMQ_URL } from "../config/variables";
+import amqp, { type Channel } from 'amqplib';
+import dns from 'dns';
+import { RABBITMQ_EXCHANGE, RABBITMQ_URL } from '../config/variables';
 
 export const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+  new Promise(resolve => setTimeout(resolve, ms));
 
 /** Looks up the address of a service */
 export const getAddress = async ({ serviceName }: { serviceName: string }) => {
@@ -17,16 +17,16 @@ export const getAddress = async ({ serviceName }: { serviceName: string }) => {
 /** Creates a TCP connection to send data to RabbitMQ.
  *  Queues are declared in case they do not exist yet. */
 export const initializeAmqp = async ({
-  queueNames,
+  queueNames
 }: {
   queueNames: string[];
 }) => {
   try {
     const connection = await amqp.connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
-    channel.assertExchange(RABBITMQ_EXCHANGE, "direct", { durable: true });
+    channel.assertExchange(RABBITMQ_EXCHANGE, 'direct', { durable: true });
 
-    for (let name of queueNames) {
+    for (const name of queueNames) {
       await channel.assertQueue(name, { durable: false });
       await channel.bindQueue(name, RABBITMQ_EXCHANGE, name);
     }
@@ -40,12 +40,12 @@ export const initializeAmqp = async ({
 export const sendMessage = ({
   msg,
   channel,
-  routingKey,
+  routingKey
 }: {
   msg: string;
   channel: Channel;
   routingKey: string;
 }) =>
-  channel.publish(RABBITMQ_EXCHANGE, routingKey, Buffer.from(msg, "utf-8"), {
-    persistent: false,
+  channel.publish(RABBITMQ_EXCHANGE, routingKey, Buffer.from(msg, 'utf-8'), {
+    persistent: false
   });

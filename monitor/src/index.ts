@@ -1,31 +1,31 @@
-import express, { Express } from "express";
-import { type Channel } from "amqplib";
-import { Server } from "http";
+import express, { Express } from 'express';
+import { type Channel } from 'amqplib';
+import { Server } from 'http';
 import {
   MONITOR_PORT,
   RABBITMQ_TOPIC_LOG,
-  configureEnvVariables,
-} from "./config/variables";
-import { initializeAmqp } from "./utils/utils";
+  configureEnvVariables
+} from './config/variables';
+import { initializeAmqp } from './utils/utils';
 
 const app: Express = express();
 let server: Server;
 // Received messages are kept in the memory
-let logs: string[] = [];
+const logs: string[] = [];
 
 const consumeMessages = ({
   channel,
-  queueName,
+  queueName
 }: {
   channel: Channel;
   queueName: string;
 }) =>
   channel.consume(
     queueName,
-    (msg) => {
+    msg => {
       if (!msg) return;
 
-      const log = msg.content.toString("utf8");
+      const log = msg.content.toString('utf8');
       process.stdout.write(`RECEIVED: ${log}`);
       logs.push(log);
 
@@ -39,11 +39,11 @@ const consumeMessages = ({
 /** Listens to GET requests. As a response, returns the received strings
  *  from the message broker as "text/plain" with each msgs on a separate
  *  line. */
-app.get("/", (req, res) => {
-  res.setHeader("Content-Type", "text/plain");
+app.get('/', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
   // each log should already end with a new line, so just
   // concatenate the array of logs
-  res.send(logs.join(""));
+  res.send(logs.join(''));
 });
 
 const startServer = async () =>
@@ -51,7 +51,7 @@ const startServer = async () =>
     console.log(`HTTP server running on port ${MONITOR_PORT} 🔥`);
 
     const channel = await initializeAmqp({
-      queueNames: [RABBITMQ_TOPIC_LOG],
+      queueNames: [RABBITMQ_TOPIC_LOG]
     });
     if (!channel) return;
 
@@ -60,7 +60,7 @@ const startServer = async () =>
   }));
 
 const shutDownServer = async () => {
-  console.log("Shutting down ✔️");
+  console.log('Shutting down ✔️');
   server.close();
   process.exit(0);
 };
@@ -68,5 +68,5 @@ const shutDownServer = async () => {
 void configureEnvVariables();
 void startServer();
 
-process.on("SIGTERM", shutDownServer);
-process.on("SIGINT", shutDownServer);
+process.on('SIGTERM', shutDownServer);
+process.on('SIGINT', shutDownServer);
