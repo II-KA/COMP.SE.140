@@ -8,13 +8,21 @@
 
 ## Description of the CI/CD Pipeline
 
-Briefly document all steps:
-• Version management; use of branches etc
-• Building tools
-• Testing; tools and test cases
-• Packing
-• Deployment
-• Operating; monitoring
+The CI/CD pipeline consists of three phases: build, test, deploy.
+
+### Version management; use of branches
+
+CI/CD pipeline is run automatically triggered by changes being pushed to "project" branch.
+
+### Building tools
+
+Build-phase consists of format-checking, linting, and building (excluded for service2, which is written in python) the three services. For nodejs services, the used tools include prettier (format-checking), eslint (linting), and tsc (compliling TypeScript). For the python service, black (format-checking) and pylint (linting) are utilized.
+
+### Testing; tools and test cases
+
+### Packing; Deployment
+
+### Operating; monitoring
 
 ## Example Runs of the CI/CD Pipeline
 
@@ -26,7 +34,7 @@ Briefly document all steps:
 
 #### Difficulties
 
-I had trouble with the course-provided GitLab instance due to the self-signed certificate. Thus, I decided not to use it and, instead, utilized GitLab's free trial and created a repository there. For clarification, I still registered my own GitLab runner and disabled shared runners for the project, as seen in the next picture.
+I had trouble with the course-provided GitLab instance (could not push code to the repository), possibly due to the self-signed certificate. Thus, I decided not to use it and, instead, utilized GitLab's free trial and created a repository there. For clarification, I still registered my own GitLab runner and disabled shared runners for the project, as seen in the next picture.
 ![GitLab Project Runners](gitlab-runners.png)
 
 ### Amount of Effort Used
