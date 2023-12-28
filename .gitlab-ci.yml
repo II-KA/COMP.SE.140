@@ -18,6 +18,7 @@ default:
   - apk add --no-cache docker-compose
   - cd monitor && npm ci --prefer-offline && cd ..
   - cd service1 && npm ci --prefer-offline && cd ..
+  - cd api-gateway && npm ci --prefer-offline && cd ..
   - pip install --no-cache-dir python-dotenv pika black pylint
 
 lint-and-build:
@@ -37,12 +38,14 @@ unit-tests:
     NODE_ENV: "test"
     RABBITMQ_PORT: 5672
     MONITOR_PORT: 0
+    API_GATEWAY_PORT: 0
     RABBITMQ_NAME: "rabbitmq"
     RABBITMQ_USER: "iida"
     RABBITMQ_PASS: "pass"
     RABBITMQ_TOPIC_LOG: "log"
   script:
   - cd monitor && npm run test:ci && cd ..
+  - cd api-gateway && npm run test:ci && cd ..
 
 # deploy application to same machine where the GitLab runner runs
 docker-deploy:

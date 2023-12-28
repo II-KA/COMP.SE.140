@@ -46,9 +46,29 @@ services:
       context: ./monitor
     image: monitor_kainu_iida
     container_name: monitor_kainu_iida
+    # Expose a port without publishing it to the host machine
+    # (only accessible to linked services)
+    expose:
+      - ${MONITOR_PORT}
+    # Use the defined network for communicating with rabbitmq
+    networks:
+      - servicenet
+    # Add environment variables to the container based on the file content
+    env_file:
+      - .env
+  api-gateway:
+    ## The api-gateway depends on rabbitmq,
+    ## further status check is done in the monitor dockerfile
+    depends_on:
+      - rabbitmq
+    build:
+      dockerfile: Dockerfile
+      context: ./api-gateway
+    image: api-gateway_kainu_iida
+    container_name: api-gateway_kainu_iida
     # map the visible port to the port on the Docker host
     ports:
-      - "${MONITOR_VISIBLE_PORT}:${MONITOR_PORT}"
+      - "${API_GATEWAY_VISIBLE_PORT}:${API_GATEWAY_PORT}"
     # Use the defined network for communicating with rabbitmq
     networks:
       - servicenet
