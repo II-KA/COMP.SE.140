@@ -39,7 +39,7 @@ I had trouble with the course-provided GitLab instance (could not push code to t
 
 ### Amount of Effort Used
 
-Estimation of used hours: ~4h
+Estimation of used hours: ~12h
 
 ## Commands for Docker Runner (self-reference)
 
@@ -66,4 +66,10 @@ Verifying the instance:
 
 ```sh
 docker exec gitlab-runner /bin/sh -c "gitlab-runner verify"
+```
+
+### testing commands
+
+```sh
+docker compose --env-file ../.env up --detach
 ```

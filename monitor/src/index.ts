@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
 import { type Channel } from 'amqplib';
-import { Server } from 'http';
 import {
   MONITOR_PORT,
   RABBITMQ_TOPIC_LOG,
@@ -9,7 +8,7 @@ import {
 import { initializeAmqp } from './utils/utils';
 
 const app: Express = express();
-let server: Server;
+let channel: Channel | undefined;
 // Received messages are kept in the memory
 const logs: string[] = [];
 
@@ -46,27 +45,35 @@ app.get('/', (req, res) => {
   res.send(logs.join(''));
 });
 
-const startServer = async () =>
-  (server = app.listen(MONITOR_PORT, async () => {
-    console.log(`HTTP server running on port ${MONITOR_PORT} 🔥`);
+/** Resets the logs array. Mainly used for testing. */
+app.post('/reset', (req, res) => {
+  logs.splice(0, logs.length);
+  console.log('Resetting logs');
+  res.status(200).send();
+});
 
-    const channel = await initializeAmqp({
-      queueNames: [RABBITMQ_TOPIC_LOG]
-    });
-    if (!channel) return;
+void configureEnvVariables();
 
-    consumeMessages({ channel, queueName: RABBITMQ_TOPIC_LOG });
-    console.log(`Consuming ${RABBITMQ_TOPIC_LOG} messages 🥕`);
-  }));
+const server = app.listen(MONITOR_PORT, async () => {
+  console.log(`HTTP server running on port ${MONITOR_PORT} 🔥`);
+
+  channel = await initializeAmqp({
+    queueNames: [RABBITMQ_TOPIC_LOG]
+  });
+  if (!channel) return;
+
+  consumeMessages({ channel, queueName: RABBITMQ_TOPIC_LOG });
+  console.log(`Consuming ${RABBITMQ_TOPIC_LOG} messages 🥕`);
+});
 
 const shutDownServer = async () => {
   console.log('Shutting down ✔️');
+  await channel?.close();
   server.close();
   process.exit(0);
 };
 
-void configureEnvVariables();
-void startServer();
-
 process.on('SIGTERM', shutDownServer);
 process.on('SIGINT', shutDownServer);
+
+export { server, shutDownServer };

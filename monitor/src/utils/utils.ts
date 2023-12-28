@@ -12,6 +12,7 @@ export const initializeAmqp = async ({
   queueNames: string[];
 }) => {
   try {
+    console.log('Connecting to RabbitMQ with url:', RABBITMQ_URL);
     const connection = await amqp.connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
     channel.assertExchange(RABBITMQ_EXCHANGE, 'direct', { durable: true });

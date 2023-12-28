@@ -1,43 +1,51 @@
 # Use a image with both python & nodejs installed
-image: nikolaik/python-nodejs:latest
+image: nikolaik/python-nodejs:python3.12-nodejs20-alpine
 
 workflow:
   rules:
-    # run pipeline automatically triggered by changes being pushed to project-branch
-    - if: $CI_COMMIT_BRANCH == "project"
-      when: always
+  # run pipeline automatically triggered by changes being pushed to project-branch
+  - if: $CI_COMMIT_BRANCH == "project"
+    when: always
 
 stages:
-  - build
-  - test
-  - deploy
+- build
+- test
+- deploy
 
 ## Install dependencies
 default:
   before_script:
-    - cd monitor && npm ci --prefer-offline && cd ..
-    - cd service1 && npm ci --prefer-offline && cd ..
-    # TODO: is installation of python-dotenv & pika required?
-    - pip install --no-cache-dir python-dotenv pika black pylint
+  - apk add --no-cache docker-compose
+  - cd monitor && npm ci --prefer-offline && cd ..
+  - cd service1 && npm ci --prefer-offline && cd ..
+  - pip install --no-cache-dir python-dotenv pika black pylint
 
 lint-and-build:
   stage: build
   script:
-    # format-check, lint, and build (when applicable) services
-    - cd monitor && npm run lint && npm run build && cd ..
-    - cd service1 && npm run lint && npm run build && cd ..
-    - cd service2
-    - find . -type f -name "*.py" | xargs python3 -m black --check
-    - find . -type f -name "*.py" | xargs python3 -m pylint --errors-only
-    - cd ..
+  # format-check, lint, and build (when applicable) services
+  - cd monitor && npm run lint && npm run build && cd ..
+  - cd service1 && npm run lint && npm run build && cd ..
+  - cd service2
+  - find . -type f -name "*.py" | xargs python3 -m black --check
+  - find . -type f -name "*.py" | xargs python3 -m pylint --errors-only
+  - cd ..
 
 unit-tests:
   stage: test
+  variables:
+    NODE_ENV: "test"
+    RABBITMQ_PORT: 5672
+    MONITOR_PORT: 0
+    RABBITMQ_NAME: "rabbitmq"
+    RABBITMQ_USER: "iida"
+    RABBITMQ_PASS: "pass"
+    RABBITMQ_TOPIC_LOG: "log"
   script:
-    - npm run test:unit:ci
+  - cd monitor && npm run test:ci && cd ..
 
 # deploy application to same machine where the GitLab runner runs
 docker-deploy:
   stage: deploy
   script:
-    - docker-compose up
+  - docker-compose up

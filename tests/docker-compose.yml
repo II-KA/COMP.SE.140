@@ -1,0 +1,13 @@
+version: "3"
+services:
+  rabbitmq:
+    image: rabbitmq:3.10-management
+    container_name: rabbitmq_kainu_iida_testing
+    # map the visible port to the port on the Docker host
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - 15672:15672
+    # User and password for initializing the services
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
