@@ -9,6 +9,7 @@ declare global {
       RABBITMQ_PASS: string;
       RABBITMQ_TOPIC_MESSAGE: string;
       RABBITMQ_TOPIC_LOG: string;
+      RABBITMQ_TOPIC_STATE_SERVICE1: string;
     }
   }
 }

@@ -1,4 +1,4 @@
-# Use a image with both python & nodejs installed
+# image with both python & nodejs installed
 image: nikolaik/python-nodejs:python3.12-nodejs20-alpine
 
 workflow:
@@ -12,18 +12,14 @@ stages:
 - test
 - deploy
 
-## Install dependencies
-default:
-  before_script:
-  - apk add --no-cache docker-compose
+lint-and-build:
+  stage: build
+  script:
+  # install dependencies
   - cd monitor && npm ci --prefer-offline && cd ..
   - cd service1 && npm ci --prefer-offline && cd ..
   - cd api-gateway && npm ci --prefer-offline && cd ..
   - pip install --no-cache-dir python-dotenv pika black pylint
-
-lint-and-build:
-  stage: build
-  script:
   # format-check, lint, and build (when applicable) services
   - cd monitor && npm run lint && npm run build && cd ..
   - cd service1 && npm run lint && npm run build && cd ..
@@ -34,21 +30,39 @@ lint-and-build:
 
 unit-tests:
   stage: test
+  services:
+  - rabbitmq:3.10
   variables:
-    NODE_ENV: "test"
+    NODE_ENV: "docker"
     RABBITMQ_PORT: 5672
     MONITOR_PORT: 0
+    MONITOR_NAME: "monitor"
     API_GATEWAY_PORT: 0
     RABBITMQ_NAME: "rabbitmq"
-    RABBITMQ_USER: "iida"
-    RABBITMQ_PASS: "pass"
+    RABBITMQ_USER: "guest"
+    RABBITMQ_PASS: "guest"
     RABBITMQ_TOPIC_LOG: "log"
+    RABBITMQ_TOPIC_STATE_MONITOR: "state-monitor"
+    RABBITMQ_TOPIC_STATE_SERVICE1: "state-service1"
+    RABBITMQ_TOPIC_STATE_SERVICE2: "state-service2"
   script:
+  # install dependencies
+  - cd monitor && npm ci --prefer-offline && cd ..
+  - cd api-gateway && npm ci --prefer-offline && cd ..
+  # run tests
   - cd monitor && npm run test:ci && cd ..
   - cd api-gateway && npm run test:ci && cd ..
 
 # deploy application to same machine where the GitLab runner runs
 docker-deploy:
   stage: deploy
+  image: docker:latest
+  services:
+  - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_CERT_PATH: "/certs/client"
   script:
-  - docker-compose up
+  - docker-compose up -d --build

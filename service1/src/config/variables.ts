@@ -8,7 +8,8 @@ const REQUIRED_ENV_VARS = [
   'RABBITMQ_USER',
   'RABBITMQ_PASS',
   'RABBITMQ_TOPIC_MESSAGE',
-  'RABBITMQ_TOPIC_LOG'
+  'RABBITMQ_TOPIC_LOG',
+  'RABBITMQ_TOPIC_STATE_SERVICE1'
 ] as const;
 
 export const configureEnvVariables = () => {
@@ -32,4 +33,6 @@ export const RABBITMQ_PASS = envVariables.RABBITMQ_PASS;
 export const RABBITMQ_URL = `amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@${RABBITMQ_NAME}`;
 export const RABBITMQ_TOPIC_MESSAGE = envVariables.RABBITMQ_TOPIC_MESSAGE;
 export const RABBITMQ_TOPIC_LOG = envVariables.RABBITMQ_TOPIC_LOG;
+export const RABBITMQ_TOPIC_STATE_SERVICE1 =
+  envVariables.RABBITMQ_TOPIC_STATE_SERVICE1;
 export const RABBITMQ_EXCHANGE = 'topic_messages';

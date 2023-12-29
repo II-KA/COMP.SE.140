@@ -6,6 +6,7 @@ declare global {
       RABBITMQ_USER: string;
       RABBITMQ_PASS: string;
       RABBITMQ_TOPIC_LOG: string;
+      RABBITMQ_TOPIC_STATE_MONITOR: string;
     }
   }
 }

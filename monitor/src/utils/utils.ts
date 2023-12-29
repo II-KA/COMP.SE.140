@@ -1,5 +1,6 @@
 import amqp from 'amqplib';
 import { RABBITMQ_EXCHANGE, RABBITMQ_URL } from '../config/variables';
+import { State } from '../types/state';
 
 export const delay = (ms: number) =>
   new Promise(resolve => setTimeout(resolve, ms));
@@ -12,7 +13,6 @@ export const initializeAmqp = async ({
   queueNames: string[];
 }) => {
   try {
-    console.log('Connecting to RabbitMQ with url:', RABBITMQ_URL);
     const connection = await amqp.connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
     channel.assertExchange(RABBITMQ_EXCHANGE, 'direct', { durable: true });
@@ -25,4 +25,9 @@ export const initializeAmqp = async ({
   } catch (err) {
     console.log(`Encountered an error during amqp initialization: ${err}`);
   }
+};
+
+export const isValueInStateEnum = () => {
+  const enumValues = Object.values(State) as string[];
+  return (value: string): value is State => enumValues.includes(value);
 };

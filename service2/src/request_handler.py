@@ -4,11 +4,11 @@ import json
 
 class Handler(BaseHTTPRequestHandler):
     def __init__(
-        self, *args, channel=None, exchange=None, produceQueueName=None, **kwargs
+        self, *args, channel=None, exchange=None, produce_queue_name=None, **kwargs
     ):
         self.channel = channel
         self.exchange = exchange
-        self.produceQueueName = produceQueueName
+        self.produce_queue_name = produce_queue_name
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
@@ -18,11 +18,13 @@ class Handler(BaseHTTPRequestHandler):
             log = data["log"]
             [address, port] = self.client_address
             # write a log composed of the request log and remote address
-            newLog = f"{log} {address}:{port}\n"
-            print(f"HTTP: {newLog}", end="")
+            new_log = f"{log} {address}:{port}\n"
+            print(f"HTTP: {new_log}", end="")
             # send the text to message broker topic "log"
             self.channel.basic_publish(
-                exchange=self.exchange, routing_key=self.produceQueueName, body=newLog
+                exchange=self.exchange,
+                routing_key=self.produce_queue_name,
+                body=new_log,
             )
             self.respond(200, "text/plain", "ok")
 

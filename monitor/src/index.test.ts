@@ -1,6 +1,6 @@
 import { type Channel } from 'amqplib';
 import request from 'supertest';
-import { server as app, shutDownServer } from './index';
+import app from './index';
 import { delay, initializeAmqp } from './utils/utils';
 import { RABBITMQ_EXCHANGE, RABBITMQ_TOPIC_LOG } from './config/variables';
 
@@ -29,7 +29,6 @@ describe('Monitor', () => {
 
   afterAll(async () => {
     await channel?.close();
-    await shutDownServer();
   });
 
   describe(`GET /`, () => {
@@ -42,7 +41,7 @@ describe('Monitor', () => {
       expect(res.text).toEqual('');
     });
 
-    it('should return a log when the log message is produced', async () => {
+    it('should return a log when a log-queue message is produced', async () => {
       if (!channel) return;
 
       const text = `SND 1 ${new Date().toISOString()} testaddr`;
@@ -56,7 +55,7 @@ describe('Monitor', () => {
       expect(res.text).toEqual(text);
     });
 
-    it('should return a string of logs separated by newlines when multiple log messages are produced', async () => {
+    it('should return a string of logs separated by newlines when multiple log-queue messages are produced', async () => {
       if (!channel) return;
 
       const text1 = `SND 1 ${new Date().toISOString()} testaddr`;

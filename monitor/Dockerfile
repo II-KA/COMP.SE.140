@@ -9,7 +9,7 @@ COPY . .
 # Install dependencies
 RUN npm install
 EXPOSE 8002
-# Run the 'wait_for_it.sh' script to check when the port used by rabbitmq 
+# Run the 'wait-for-it.sh' script to check when the port used by rabbitmq 
 # has opened i.e., the rabbitmq service has started successfully. 
 # Timeout after 20sec, if port has not opened.
 # If the port is open within the timeout, build the application and start the monitor

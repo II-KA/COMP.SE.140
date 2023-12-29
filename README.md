@@ -37,39 +37,16 @@ Build-phase consists of format-checking, linting, and building (excluded for ser
 I had trouble with the course-provided GitLab instance (could not push code to the repository), possibly due to the self-signed certificate. Thus, I decided not to use it and, instead, utilized GitLab's free trial and created a repository there. For clarification, I still registered my own GitLab runner and disabled shared runners for the project, as seen in the next picture.
 ![GitLab Project Runners](gitlab-runners.png)
 
+### Improvements
+
+A lot of utility code (wait-for-it.sh, rabbitMQ related functions) are duplicated across the different components (api-gateway, monitor, service1). Thus, a monorepo-structure (where utility code is defined once and usable by all components) would have suited the project better.
+
 ### Amount of Effort Used
 
-Estimation of used hours: ~12h
-
-## Commands for Docker Runner (self-reference)
-
-Starting the container:
-
-```sh
-docker volume create gitlab-runner-config
-docker run -d --name gitlab-runner --restart always -v /var/run/docker.sock:/var/run/docker.sock -v gitlab-runner-config:/etc/gitlab-runner gitlab/gitlab-runner:latest
-```
-
-Registering the runner:
-
-```sh
-docker run --rm -it -v gitlab-runner-config:/etc/gitlab-runner gitlab/gitlab-runner:latest register
-```
-
-Docker-out-of-Docker (DooD) by exposing the Docker socket to the CI container (created containers are sibling containers):
-
-```sh
-docker run -v /var/run/docker.sock:/var/run/docker.sock ...
-```
-
-Verifying the instance:
-
-```sh
-docker exec gitlab-runner /bin/sh -c "gitlab-runner verify"
-```
+Estimation of used hours: ~20h
 
 ### testing commands
 
 ```sh
-docker compose --env-file ../.env up --detach
+cd tests && docker compose --env-file ../.env up --detach && cd ..
 ```
