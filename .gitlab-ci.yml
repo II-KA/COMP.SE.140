@@ -53,16 +53,17 @@ unit-tests:
   - cd monitor && npm run test:ci && cd ..
   - cd api-gateway && npm run test:ci && cd ..
 
-# deploy application to same machine where the GitLab runner runs
-docker-deploy:
+deploy:
   stage: deploy
-  image: docker:latest
-  services:
-  - docker:dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_CERT_PATH: "/certs/client"
+  image: alpine:latest
+  before_script:
+  - apk add openssh-client
+  - eval $(ssh-agent -s)
+  - echo "$PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
   script:
-  - docker-compose up -d --build
+  # remove project folder if it exists
+  - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_ADDRESS 'if [ -d iida.kainu_private_project ]; then rm -Rf iida.kainu_private_project; fi'
+  # clone project with SSH and run docker-compose
+  - ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_ADDRESS 'git clone git@gitlab.com:iida_kainu/iida.kainu_private_project.git && cd iida.kainu_private_project && docker-compose up -d --build'
