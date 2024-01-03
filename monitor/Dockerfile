@@ -9,6 +9,8 @@ COPY . .
 # Install dependencies
 RUN npm install
 EXPOSE 8002
+# make wait-for-it.sh an executable
+RUN ["chmod", "+x", "./src/utils/wait-for-it.sh"]
 # Run the 'wait-for-it.sh' script to check when the port used by rabbitmq 
 # has opened i.e., the rabbitmq service has started successfully. 
 # Timeout after 20sec, if port has not opened.

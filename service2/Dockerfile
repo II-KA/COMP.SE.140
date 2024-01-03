@@ -9,7 +9,9 @@ COPY . .
 # Install dependencies
 RUN pip install --no-cache-dir python-dotenv pika
 EXPOSE 8000
-# Run the 'wait_for_it.sh' script to check when the port used by rabbitmq 
+# make wait-for-it.sh an executable
+RUN ["chmod", "+x", "./src/utils/wait-for-it.sh"]
+# Run the 'wait-for-it.sh' script to check when the port used by rabbitmq 
 # has opened i.e., the rabbitmq service has started successfully. 
 # Timeout after 20sec, if port has not opened.
 # If the port is open within the timeout, start the service (-u option for printing logs)
